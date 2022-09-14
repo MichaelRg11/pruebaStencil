@@ -1,4 +1,26 @@
-const NAMESPACE = 'prueba-stencil';
+'use strict';
+
+function _interopNamespace(e) {
+  if (e && e.__esModule) return e;
+  var n = Object.create(null);
+  if (e) {
+    Object.keys(e).forEach(function (k) {
+      if (k !== 'default') {
+        var d = Object.getOwnPropertyDescriptor(e, k);
+        Object.defineProperty(n, k, d.get ? d : {
+          enumerable: true,
+          get: function () {
+            return e[k];
+          }
+        });
+      }
+    });
+  }
+  n['default'] = e;
+  return Object.freeze(n);
+}
+
+const NAMESPACE = 'demo';
 
 let scopeId;
 let hostTagName;
@@ -163,6 +185,19 @@ const h = (nodeName, vnodeData, ...children) => {
         }
     };
     walk(children);
+    if (vnodeData) {
+        {
+            const classData = vnodeData.className || vnodeData.class;
+            if (classData) {
+                vnodeData.class =
+                    typeof classData !== 'object'
+                        ? classData
+                        : Object.keys(classData)
+                            .filter((k) => classData[k])
+                            .join(' ');
+            }
+        }
+    }
     if (typeof nodeName === 'function') {
         // nodeName is a functional component
         return nodeName(vnodeData === null ? {} : vnodeData, vNodeChildren, vdomFnUtils);
@@ -231,7 +266,14 @@ const setAccessor = (elm, memberName, oldValue, newValue, isSvg, flags) => {
     if (oldValue !== newValue) {
         let isProp = isMemberInElement(elm, memberName);
         memberName.toLowerCase();
-        {
+        if (memberName === 'class') {
+            const classList = elm.classList;
+            const oldClasses = parseClassList(oldValue);
+            const newClasses = parseClassList(newValue);
+            classList.remove(...oldClasses.filter((c) => c && !newClasses.includes(c)));
+            classList.add(...newClasses.filter((c) => c && !oldClasses.includes(c)));
+        }
+        else {
             // Set property if it exists and it's not a SVG
             const isComplex = isComplexType(newValue);
             if ((isProp || (isComplex && newValue !== null)) && !isSvg) {
@@ -268,6 +310,8 @@ const setAccessor = (elm, memberName, oldValue, newValue, isSvg, flags) => {
         }
     }
 };
+const parseClassListRegex = /\s/;
+const parseClassList = (value) => (!value ? [] : value.split(parseClassListRegex));
 const updateElement = (oldVnode, newVnode, isSvgMode, memberName) => {
     // if the element passed in is a shadow root, which is a document fragment
     // then we want to be adding attrs/props to the shadow root's "host" element
@@ -764,6 +808,17 @@ const appDidLoad = (who) => {
     }
     nextTick(() => emitEvent(win, 'appload', { detail: { namespace: NAMESPACE } }));
 };
+const safeCall = (instance, method, arg) => {
+    if (instance && instance[method]) {
+        try {
+            return instance[method](arg);
+        }
+        catch (e) {
+            consoleError(e);
+        }
+    }
+    return undefined;
+};
 const then = (promise, thenFn) => {
     return promise && promise.then ? promise.then(thenFn) : thenFn();
 };
@@ -963,6 +1018,7 @@ const initializeComponent = async (elm, hostRef, cmpMeta, hmrVersionId, Cstr) =>
                 hostRef.$flags$ &= ~8 /* HOST_FLAGS.isConstructingInstance */;
             }
             endNewInstance();
+            fireConnectedCallback(hostRef.$lazyInstance$);
         }
         if (Cstr.style) {
             // this component has styles but we haven't registered them yet
@@ -989,6 +1045,11 @@ const initializeComponent = async (elm, hostRef, cmpMeta, hmrVersionId, Cstr) =>
     }
     else {
         schedule();
+    }
+};
+const fireConnectedCallback = (instance) => {
+    {
+        safeCall(instance, 'connectedCallback');
     }
 };
 const connectedCallback = (elm) => {
@@ -1029,12 +1090,20 @@ const connectedCallback = (elm) => {
                 initializeComponent(elm, hostRef, cmpMeta);
             }
         }
+        else {
+            // fire off connectedCallback() on component instance
+            fireConnectedCallback(hostRef.$lazyInstance$);
+        }
         endConnected();
     }
 };
 const disconnectedCallback = (elm) => {
     if ((plt.$flags$ & 1 /* PLATFORM_FLAGS.isTmpDisconnected */) === 0) {
-        getHostRef(elm);
+        const hostRef = getHostRef(elm);
+        const instance = hostRef.$lazyInstance$ ;
+        {
+            safeCall(instance, 'disconnectedCallback');
+        }
     }
 };
 const bootstrapLazy = (lazyBundles, options = {}) => {
@@ -1155,12 +1224,12 @@ const loadModule = (cmpMeta, hostRef, hmrVersionId) => {
         return module[exportName];
     }
     /*!__STENCIL_STATIC_IMPORT_SWITCH__*/
-    return import(
+    return Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(
     /* @vite-ignore */
     /* webpackInclude: /\.entry\.js$/ */
     /* webpackExclude: /\.system\.entry\.js$/ */
     /* webpackMode: "lazy" */
-    `./${bundleId}.entry.js${''}`).then((importedModule) => {
+    `./${bundleId}.entry.js${''}`)); }).then((importedModule) => {
         {
             cmpModules.set(bundleId, importedModule);
         }
@@ -1211,4 +1280,7 @@ const flush = () => {
 const nextTick = /*@__PURE__*/ (cb) => promiseResolve().then(cb);
 const writeTask = /*@__PURE__*/ queueTask(queueDomWrites, true);
 
-export { bootstrapLazy as b, h, promiseResolve as p, registerInstance as r };
+exports.bootstrapLazy = bootstrapLazy;
+exports.h = h;
+exports.promiseResolve = promiseResolve;
+exports.registerInstance = registerInstance;

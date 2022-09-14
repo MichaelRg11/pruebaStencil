@@ -6,71 +6,55 @@
  */
 import { HTMLStencilElement, JSXBase } from "./stencil-public-runtime";
 export namespace Components {
-    interface MyCard {
-        "name": string;
+    interface AdoVideoPlayer {
+        "source": any;
+        "type": 'youtube';
     }
-    interface MyComponent {
-        /**
-          * The first name
-         */
-        "first": string;
-        /**
-          * The last name
-         */
-        "last": string;
-        /**
-          * The middle name
-         */
-        "middle": string;
+    interface MyCard {
+        "image": string;
+        "name": string;
+        "role": string;
     }
 }
 declare global {
+    interface HTMLAdoVideoPlayerElement extends Components.AdoVideoPlayer, HTMLStencilElement {
+    }
+    var HTMLAdoVideoPlayerElement: {
+        prototype: HTMLAdoVideoPlayerElement;
+        new (): HTMLAdoVideoPlayerElement;
+    };
     interface HTMLMyCardElement extends Components.MyCard, HTMLStencilElement {
     }
     var HTMLMyCardElement: {
         prototype: HTMLMyCardElement;
         new (): HTMLMyCardElement;
     };
-    interface HTMLMyComponentElement extends Components.MyComponent, HTMLStencilElement {
-    }
-    var HTMLMyComponentElement: {
-        prototype: HTMLMyComponentElement;
-        new (): HTMLMyComponentElement;
-    };
     interface HTMLElementTagNameMap {
+        "ado-video-player": HTMLAdoVideoPlayerElement;
         "my-card": HTMLMyCardElement;
-        "my-component": HTMLMyComponentElement;
     }
 }
 declare namespace LocalJSX {
-    interface MyCard {
-        "name"?: string;
+    interface AdoVideoPlayer {
+        "source"?: any;
+        "type"?: 'youtube';
     }
-    interface MyComponent {
-        /**
-          * The first name
-         */
-        "first"?: string;
-        /**
-          * The last name
-         */
-        "last"?: string;
-        /**
-          * The middle name
-         */
-        "middle"?: string;
+    interface MyCard {
+        "image"?: string;
+        "name"?: string;
+        "role"?: string;
     }
     interface IntrinsicElements {
+        "ado-video-player": AdoVideoPlayer;
         "my-card": MyCard;
-        "my-component": MyComponent;
     }
 }
 export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "ado-video-player": LocalJSX.AdoVideoPlayer & JSXBase.HTMLAttributes<HTMLAdoVideoPlayerElement>;
             "my-card": LocalJSX.MyCard & JSXBase.HTMLAttributes<HTMLMyCardElement>;
-            "my-component": LocalJSX.MyComponent & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
         }
     }
 }

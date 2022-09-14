@@ -1,9 +1,9 @@
 import type { Components, JSX } from "../types/components";
 
-interface MyComponent extends Components.MyComponent, HTMLElement {}
-export const MyComponent: {
-  prototype: MyComponent;
-  new (): MyComponent;
+interface AdoVideoPlayer extends Components.AdoVideoPlayer, HTMLElement {}
+export const AdoVideoPlayer: {
+  prototype: AdoVideoPlayer;
+  new (): AdoVideoPlayer;
 };
 /**
  * Used to define this component and all nested components recursively.

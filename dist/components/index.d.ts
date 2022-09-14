@@ -1,6 +1,6 @@
-/* PruebaStencil custom elements */
+/* demo custom elements */
+export { VideoPlayer as AdoVideoPlayer } from '../types/components/video-player/VideoPlayer';
 export { MyCard as MyCard } from '../types/components/card/Card';
-export { MyComponent as MyComponent } from '../types/components/my-component/my-component';
 
 /**
  * Used to manually set the base path where assets can be found.

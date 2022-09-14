@@ -1,7 +1,7 @@
 {
   "entries": [
     "./components/card/Card.js",
-    "./components/my-component/my-component.js"
+    "./components/video-player/VideoPlayer.js"
   ],
   "compiler": {
     "name": "@stencil/core",
