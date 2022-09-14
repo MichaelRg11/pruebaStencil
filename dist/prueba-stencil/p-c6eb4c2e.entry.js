@@ -1,0 +1,1 @@
+import{r,h as s}from"./p-b7c20ad4.js";const a=class{constructor(s){r(this,s)}render(){return s(n,{name:this.name})}},n=({name:r})=>s("div",null,s("h1",null,"Hola, ",r));export{a as my_card}
